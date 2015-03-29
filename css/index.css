@@ -1,0 +1,65 @@
+body {
+  font-family: RobotoDraft, 'Helvetica Neue', Helvetica, Arial;
+  font-size: 14px;
+  margin: 0;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-touch-callout: none;
+}
+core-header-panel {
+  background: #fff;
+}
+core-toolbar {
+  background-color: #3e50b4;
+  color: #fff;
+}
+h4 {
+  margin: 0 auto;
+}
+p {
+  margin: 20px;
+  padding: 80px 20px;
+  border-radius: 20px;
+  background-color: #eee;
+}
+#stage {
+  height: 800px;
+  padding: 2em;
+  margin: 2em;
+  min-width: 600px;
+  background-color: #eee;
+}
+.field {
+  padding: 0 !important;
+  margin-left: 2em;
+}
+#grades {
+  margin-left: 2em;
+  background-color: #fff;
+}
+.grade {
+  margin-left: 2em;
+  margin-right: 1em;
+}
+#display {
+  margin-left: 2em;
+  background-color: #fff;
+}
+#titlebar {
+  padding-top: 1em;
+  height: 35px;
+  background-color: #03a9f4;
+  color: #fff;
+}
+.summary {
+  color: #fff;
+}
+.summarytext {
+  margin-left: 2em;
+  margin-right: 4em;
+}
+.summaryhelper {
+  margin-left: 2em;
+  margin-right: 4em;
+  margin-top: -2em;
+  margin-bottom: -2em;
+}

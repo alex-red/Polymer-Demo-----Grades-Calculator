@@ -1,0 +1,103 @@
+doctype html
+html
+  head
+    title Polymer
+    meta(name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
+
+    script(src="bower_components/webcomponentsjs/webcomponents.js")
+
+    //- Load Cores
+    - var cores = ['core-toolbar', 'core-header-panel', 'core-icons', 'core-input', 'core-field']
+    each core in cores
+      link(rel="import" href="bower_components/#{core}/#{core}.html")
+    //- Load papers
+    - var papers = ['paper-fab', 'paper-icon-button' ,  'paper-input', 'paper-shadow' ]
+    each paper in papers
+      link(rel="import" href="bower_components/#{paper}/#{paper}.html")
+
+    link(rel="stylesheet" href="css/index.css")
+  body(fullbleed vertical layout unresolved)
+    template#main(is="auto-binding")
+      core-header-panel(flex)
+        core-toolbar#mainheader(horizontal layout)
+          h4 Simple Grades
+        paper-shadow#stage(z=3 horizontal justified layout)
+          paper-fab#addButton(icon="add" on-tap="{{addGrade}}")
+          paper-shadow(layout vertical flex z=2)#grades
+            //- paper-shadow(layout horizontal)
+            paper-shadow(z=1)#titlebar
+              container(horizontal around-justified layout )
+                span: b Grade
+                span: b Weight
+            template(repeat="{{grades}}")
+              container(layout around-justified horizontal)
+                paper-input.grade(floatingLabel flex label="Grade recieved (%)" value="{{grade}}" on-change="{{getTotalGrade}}")
+                paper-input.grade(floatingLabel flex label="Weight (%)" value="{{weight}}" on-change="{{getTotalGrade}}")
+                //- span: b sum
+          paper-shadow(flex z=2 layout vertical)#display
+            paper-shadow(z=1)#titlebar.summary
+              container(horizontal around-justified layout )
+                span: b Summary
+            container(layout justified horizontal).summarytext
+              h2 Current Grade:
+              h2 {{total}}%
+            container(layout justified horizontal).summaryhelper
+              h5: em Your mark without accounting for missed weight.
+            container(layout justified horizontal).summarytext
+              h2 Missing Weight:
+              h2 {{missingWeight}}%
+            container(layout justified horizontal).summaryhelper
+              h5: em Percentage of missing grades.
+            container(layout justified horizontal).summarytext
+              h2 Assumed Grade:
+              h2 {{assumedGrade}}%
+            container(layout justified horizontal).summaryhelper
+              h5: em Assuming 100% on remaining grade.
+
+    script
+      :coffee
+        main = document.querySelector "#main"
+        main.total = 0
+        main.missingWeight = 0
+        main.assumedGrade = 0
+        main.grades = [
+          {
+          grade: ""
+          weight: ""
+          },{
+          grade: ""
+          weight: ""
+          },{
+          grade: ""
+          weight: ""
+          },{
+          grade: ""
+          weight: ""
+          },{
+          grade: ""
+          weight: ""
+          },
+        ]
+        main.addGrade = ->
+          obj = {
+            grade: ''
+            weight: ''
+          }
+          main.grades.push obj
+        main.getTotalGrade = ->
+          sum = 0
+          sumWeight = 0
+          for o in main.grades
+            if o.grade and o.weight
+              weight = parseFloat(o.weight)
+              if weight > 1
+                weight = weight / 100
+              grade = parseFloat(o.grade)
+              sum += weight * grade
+              sumWeight += weight
+          main.missingWeight = 1 - sumWeight
+          if main.missingWeight < 1
+            main.assumedGrade = sum + 100*main.missingWeight
+            main.assumedGrade = main.assumedGrade.toFixed(2)
+          main.total = sum.toFixed(2)
+          main.missingWeight = main.missingWeight.toFixed(2)

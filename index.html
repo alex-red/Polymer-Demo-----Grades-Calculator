@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Polymer</title>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
+    <link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
+    <link rel="import" href="bower_components/core-icons/core-icons.html">
+    <link rel="import" href="bower_components/core-input/core-input.html">
+    <link rel="import" href="bower_components/core-field/core-field.html">
+    <link rel="import" href="bower_components/paper-fab/paper-fab.html">
+    <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="bower_components/paper-input/paper-input.html">
+    <link rel="import" href="bower_components/paper-shadow/paper-shadow.html">
+    <link rel="stylesheet" href="css/index.css">
+  </head>
+  <body fullbleed vertical layout unresolved>
+    <template id="main" is="auto-binding">
+      <core-header-panel flex>
+        <core-toolbar id="mainheader" horizontal layout>
+          <h4>Simple Grades</h4>
+        </core-toolbar>
+        <paper-shadow id="stage" z="3" horizontal justified layout>
+          <paper-fab id="addButton" icon="add" on-tap="{{addGrade}}"></paper-fab>
+          <paper-shadow layout vertical flex z="2" id="grades">
+            <paper-shadow z="1" id="titlebar">
+              <container horizontal around-justified layout><span><b>Grade</b></span><span><b>Weight</b></span></container>
+            </paper-shadow>
+            <template repeat="{{grades}}">
+              <container layout around-justified horizontal>
+                <paper-input floatingLabel flex label="Grade recieved (%)" value="{{grade}}" on-change="{{getTotalGrade}}" class="grade"></paper-input>
+                <paper-input floatingLabel flex label="Weight (%)" value="{{weight}}" on-change="{{getTotalGrade}}" class="grade"></paper-input>
+              </container>
+            </template>
+          </paper-shadow>
+          <paper-shadow flex z="2" layout vertical id="display">
+            <paper-shadow z="1" id="titlebar" class="summary">
+              <container horizontal around-justified layout><span><b>Summary</b></span></container>
+            </paper-shadow>
+            <container layout justified horizontal class="summarytext">
+              <h2>Current Grade:</h2>
+              <h2>{{total}}%</h2>
+            </container>
+            <container layout justified horizontal class="summaryhelper">
+              <h5><em>Your mark without accounting for missed weight.</em></h5>
+            </container>
+            <container layout justified horizontal class="summarytext">
+              <h2>Missing Weight:</h2>
+              <h2>{{missingWeight}}%</h2>
+            </container>
+            <container layout justified horizontal class="summaryhelper">
+              <h5><em>Percentage of missing grades.</em></h5>
+            </container>
+            <container layout justified horizontal class="summarytext">
+              <h2>Assumed Grade:</h2>
+              <h2>{{assumedGrade}}%</h2>
+            </container>
+            <container layout justified horizontal class="summaryhelper">
+              <h5><em>Assuming 100% on remaining grade.</em></h5>
+            </container>
+          </paper-shadow>
+        </paper-shadow>
+      </core-header-panel>
+    </template>
+    <script>(function() {
+  var main;
+
+  main = document.querySelector("#main");
+
+  main.total = 0;
+
+  main.missingWeight = 0;
+
+  main.assumedGrade = 0;
+
+  main.grades = [
+    {
+      grade: "",
+      weight: ""
+    }, {
+      grade: "",
+      weight: ""
+    }, {
+      grade: "",
+      weight: ""
+    }, {
+      grade: "",
+      weight: ""
+    }, {
+      grade: "",
+      weight: ""
+    }
+  ];
+
+  main.addGrade = function() {
+    var obj;
+    obj = {
+      grade: '',
+      weight: ''
+    };
+    return main.grades.push(obj);
+  };
+
+  main.getTotalGrade = function() {
+    var grade, o, sum, sumWeight, weight, _i, _len, _ref;
+    sum = 0;
+    sumWeight = 0;
+    _ref = main.grades;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      o = _ref[_i];
+      if (o.grade && o.weight) {
+        weight = parseFloat(o.weight);
+        if (weight > 1) {
+          weight = weight / 100;
+        }
+        grade = parseFloat(o.grade);
+        sum += weight * grade;
+        sumWeight += weight;
+      }
+    }
+    main.missingWeight = 1 - sumWeight;
+    if (main.missingWeight < 1) {
+      main.assumedGrade = sum + 100 * main.missingWeight;
+      main.assumedGrade = main.assumedGrade.toFixed(2);
+    }
+    main.total = sum.toFixed(2);
+    return main.missingWeight = main.missingWeight.toFixed(2);
+  };
+
+}).call(this);
+
+    </script>
+  </body>
+</html>
