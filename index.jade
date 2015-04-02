@@ -1,8 +1,11 @@
 doctype html
 html
   head
-    title Polymer
+    title Simple Grades by alex.red
     meta(name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
+    meta(name="description" content="Useful grades calculator made in Polymer.")
+    meta(name="keywords" content="Polymer Grades Demo Material Design")
+    meta(name="author" content="Red.Alex")
 
     script(src="bower_components/webcomponentsjs/webcomponents.js")
 
@@ -11,28 +14,31 @@ html
     each core in cores
       link(rel="import" href="bower_components/#{core}/#{core}.html")
     //- Load papers
-    - var papers = ['paper-fab', 'paper-icon-button' ,  'paper-input', 'paper-shadow' ]
+    - var papers = ['paper-fab', 'paper-icon-button' ,  'paper-input', 'paper-shadow', 'paper-toast']
     each paper in papers
       link(rel="import" href="bower_components/#{paper}/#{paper}.html")
 
     link(rel="stylesheet" href="css/index.css")
   body(fullbleed vertical layout unresolved)
+    paper-toast#toasty(class="capsule core-transition core-transition-bottom" text="You've entered more than 100% worth of grades! Results are now innacurate." style="right:10px; left:auto; padding-right: 60px; position: fixed; outline: none; z-index: 14; box-sizing: border-box; display: none;" tab-index=-1 role="status" touch-action="none" duration="5000")
     template#main(is="auto-binding")
+
+
       core-header-panel(flex)
         core-toolbar#mainheader(horizontal layout)
           h4 Simple Grades
-        paper-shadow#stage(z=3 horizontal justified layout)
-          paper-fab#addButton(icon="add" on-tap="{{addGrade}}")
+        paper-shadow#stage(z=3 horizontal justified layout).no-padding
+          paper-fab#addButton(title="Add new row" icon="add" on-tap="{{addGrade}}")
           paper-shadow(layout vertical flex z=2)#grades
             //- paper-shadow(layout horizontal)
             paper-shadow(z=1)#titlebar
               container(horizontal around-justified layout )
-                span: b Grade
-                span: b Weight
-            template(repeat="{{grades}}")
+                span: b Grade (Percent)
+                span: b Weight (Percent)
+            template#gradesForm(repeat="{{o in grades}}")
               container(layout around-justified horizontal)
-                paper-input.grade(floatingLabel flex label="Grade recieved (%)" value="{{grade}}" on-change="{{getTotalGrade}}")
-                paper-input.grade(floatingLabel flex label="Weight (%)" value="{{weight}}" on-change="{{getTotalGrade}}")
+                paper-input.grade(floatingLabel flex label="Grade recieved (%)" value="{{o.grade}}" on-change="{{getTotalGrade}}")
+                paper-input.grade(floatingLabel flex label="Weight (%)" value="{{o.weight}}" on-change="{{getTotalGrade}}")
                 //- span: b sum
           paper-shadow(flex z=2 layout vertical)#display
             paper-shadow(z=1)#titlebar.summary
@@ -41,44 +47,78 @@ html
             container(layout justified horizontal).summarytext
               h2 Current Grade:
               h2 {{total}}%
-            container(layout justified horizontal).summaryhelper
-              h5: em Your mark without accounting for missed weight.
-            container(layout justified horizontal).summarytext
-              h2 Missing Weight:
-              h2 {{missingWeight}}%
-            container(layout justified horizontal).summaryhelper
-              h5: em Percentage of missing grades.
-            container(layout justified horizontal).summarytext
-              h2 Assumed Grade:
-              h2 {{assumedGrade}}%
-            container(layout justified horizontal).summaryhelper
-              h5: em Assuming 100% on remaining grade.
+            template(if="{{missingWeight >= 0}}")
+              container(layout justified horizontal).summaryhelper
+                h5: em Your mark without accounting for missed weight.
+              container(layout justified horizontal).summarytext
+                h2 Missing Weight:
+                h2 {{missingWeight}}%
+              container(layout justified horizontal).summaryhelper
+                h5: em Percentage of missing grades.
+              container(layout justified horizontal).summarytext
+                h2 Assumed Grade:
+                h2 {{assumedGrade}}%
+              container(layout justified horizontal).summaryhelper
+                h5: em Assuming 100% on remaining grade.
+            br
+            template(if="{{missingWeight > 0}}")
+              .content(flex layout vertical)
+                container(layout justified horizontal).summarytext
+                  h2: em(style="text-decoration: underline;") Detailed Marks Breakdown
+                template(repeat="{{n in detailedMarksIterator}}")
+                  container(layout justified horizontal).add-padding
+                    span Achieving
+                      b  [{{n}}%]
+                      span  on remaining weight...
+                  container(layout justified horizontal style="margin-bottom: 0.5em;").add-padding
+                    span Your mark would be...
+                      b  [{{detailedMarksDB[n]}}%]
+
+                .container(layout justified horizontal).custombar
+                  core-field
+                    label
+                      b Assuming:
+                    .input
+                      paper-input(floatingLabel label="Grade (%)" value="{{customGrade}}" on-change="{{getCustomFinalGrade}}")
+                    label: b Final Mark: [{{customFinalGrade}}%]
+                .container(layout justified horizontal).custombar2
+                  core-field
+                    label
+                      b Desired:
+                    .input
+                      paper-input(floatingLabel label="Grade (%)" value="{{desiredGrade}}" on-change="{{getDesiredFinalGrade}}")
+                    label: b You Need: [{{desiredFinalGrade}}%]
+
 
     script
       :coffee
         main = document.querySelector "#main"
+        displayError = document.querySelector "#toasty"
+
         main.total = 0
         main.missingWeight = 0
         main.assumedGrade = 0
         main.grades = [
-          {
-          grade: ""
-          weight: ""
-          },{
-          grade: ""
-          weight: ""
-          },{
-          grade: ""
-          weight: ""
-          },{
-          grade: ""
-          weight: ""
-          },{
-          grade: ""
-          weight: ""
-          },
+          grade: ''
+          weight: ''
         ]
+        main.customFinalGrade = 100
+        main.getCustomFinalGrade = ->
+          main.customFinalGrade = parseFloat(main.total) + (parseFloat(main.customGrade) * parseFloat(main.missingWeight))
+          main.customFinalGrade = main.customFinalGrade.toFixed(2)
+        main.desiredFinalGrade = 100
+        main.getDesiredFinalGrade = ->
+          main.desiredFinalGrade = (parseFloat(main.desiredGrade) - parseFloat(main.total)) / (parseFloat(main.missingWeight))
+          main.desiredFinalGrade = main.desiredFinalGrade.toFixed(2)
         main.addGrade = ->
+            main.grades = main.grades
+            obj = {
+              grade: ''
+              weight: ''
+            }
+            main.grades.push obj
+            return
+        for x in [0...12]
           obj = {
             grade: ''
             weight: ''
@@ -101,3 +141,13 @@ html
             main.assumedGrade = main.assumedGrade.toFixed(2)
           main.total = sum.toFixed(2)
           main.missingWeight = main.missingWeight.toFixed(2)
+          main.genDetailedMarkDB()
+          if main.missingWeight < 0
+            displayError.show()
+        main.detailedMarksIterator = (n for n in [100..10] by -10)
+        main.detailedMarksDB = {}
+        main.genDetailedMarkDB = ->
+          for grade in main.detailedMarksIterator
+            res = parseFloat(main.total) + (grade * parseFloat(main.missingWeight))
+            main.detailedMarksDB[grade] = res.toFixed(2)
+          return

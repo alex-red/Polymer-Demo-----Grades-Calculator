@@ -4,6 +4,7 @@ body {
   margin: 0;
   -webkit-tap-highlight-color: rgba(0,0,0,0);
   -webkit-touch-callout: none;
+  min-width 930px !important
 }
 core-header-panel {
   background: white;
@@ -23,8 +24,14 @@ p {
 // #addButton
 //     background-color black
 
+.no-padding
+  margin 0 !important
+
+.add-padding
+  margin-left 2em
+  margin-right 4em
 #stage
-    height 800px
+    height 100%
     padding 2em
     margin 2em
     min-width 600px
@@ -64,3 +71,20 @@ p {
     margin-top -2em
     margin-bottom -2em
 
+.custombar
+  height 70px
+  margin-left 2em
+  .input
+    width 65px
+    margin-left 0.5em
+    margin-right 0.5em
+    padding-bottom 1.2rem !important
+
+.custombar2
+  height 70px
+  margin-left 2em
+  .input
+    width 65px
+    margin-left 1.7em
+    margin-right 0.5em
+    padding-bottom 1.2rem !important

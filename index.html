@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Polymer</title>
+    <title>Simple Grades by alex.red</title>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <meta name="description" content="Useful grades calculator made in Polymer.">
+    <meta name="keywords" content="Polymer Grades Demo Material Design">
+    <meta name="author" content="Red.Alex">
     <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
     <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
     <link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
@@ -13,24 +16,26 @@
     <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
     <link rel="import" href="bower_components/paper-input/paper-input.html">
     <link rel="import" href="bower_components/paper-shadow/paper-shadow.html">
+    <link rel="import" href="bower_components/paper-toast/paper-toast.html">
     <link rel="stylesheet" href="css/index.css">
   </head>
   <body fullbleed vertical layout unresolved>
+    <paper-toast id="toasty" text="You've entered more than 100% worth of grades! Results are now innacurate." style="right:10px; left:auto; padding-right: 60px; position: fixed; outline: none; z-index: 14; box-sizing: border-box; display: none;" tab-index="-1" role="status" touch-action="none" duration="5000" class="capsule core-transition core-transition-bottom"></paper-toast>
     <template id="main" is="auto-binding">
       <core-header-panel flex>
         <core-toolbar id="mainheader" horizontal layout>
           <h4>Simple Grades</h4>
         </core-toolbar>
-        <paper-shadow id="stage" z="3" horizontal justified layout>
-          <paper-fab id="addButton" icon="add" on-tap="{{addGrade}}"></paper-fab>
+        <paper-shadow id="stage" z="3" horizontal justified layout class="no-padding">
+          <paper-fab id="addButton" title="Add new row" icon="add" on-tap="{{addGrade}}"></paper-fab>
           <paper-shadow layout vertical flex z="2" id="grades">
             <paper-shadow z="1" id="titlebar">
-              <container horizontal around-justified layout><span><b>Grade</b></span><span><b>Weight</b></span></container>
+              <container horizontal around-justified layout><span><b>Grade (Percent)</b></span><span><b>Weight (Percent)</b></span></container>
             </paper-shadow>
-            <template repeat="{{grades}}">
+            <template id="gradesForm" repeat="{{o in grades}}">
               <container layout around-justified horizontal>
-                <paper-input floatingLabel flex label="Grade recieved (%)" value="{{grade}}" on-change="{{getTotalGrade}}" class="grade"></paper-input>
-                <paper-input floatingLabel flex label="Weight (%)" value="{{weight}}" on-change="{{getTotalGrade}}" class="grade"></paper-input>
+                <paper-input floatingLabel flex label="Grade recieved (%)" value="{{o.grade}}" on-change="{{getTotalGrade}}" class="grade"></paper-input>
+                <paper-input floatingLabel flex label="Weight (%)" value="{{o.weight}}" on-change="{{getTotalGrade}}" class="grade"></paper-input>
               </container>
             </template>
           </paper-shadow>
@@ -42,31 +47,64 @@
               <h2>Current Grade:</h2>
               <h2>{{total}}%</h2>
             </container>
-            <container layout justified horizontal class="summaryhelper">
-              <h5><em>Your mark without accounting for missed weight.</em></h5>
-            </container>
-            <container layout justified horizontal class="summarytext">
-              <h2>Missing Weight:</h2>
-              <h2>{{missingWeight}}%</h2>
-            </container>
-            <container layout justified horizontal class="summaryhelper">
-              <h5><em>Percentage of missing grades.</em></h5>
-            </container>
-            <container layout justified horizontal class="summarytext">
-              <h2>Assumed Grade:</h2>
-              <h2>{{assumedGrade}}%</h2>
-            </container>
-            <container layout justified horizontal class="summaryhelper">
-              <h5><em>Assuming 100% on remaining grade.</em></h5>
-            </container>
+            <template if="{{missingWeight &gt;= 0}}">
+              <container layout justified horizontal class="summaryhelper">
+                <h5><em>Your mark without accounting for missed weight.</em></h5>
+              </container>
+              <container layout justified horizontal class="summarytext">
+                <h2>Missing Weight:</h2>
+                <h2>{{missingWeight}}%</h2>
+              </container>
+              <container layout justified horizontal class="summaryhelper">
+                <h5><em>Percentage of missing grades.</em></h5>
+              </container>
+              <container layout justified horizontal class="summarytext">
+                <h2>Assumed Grade:</h2>
+                <h2>{{assumedGrade}}%</h2>
+              </container>
+              <container layout justified horizontal class="summaryhelper">
+                <h5><em>Assuming 100% on remaining grade.</em></h5>
+              </container>
+            </template><br>
+            <template if="{{missingWeight &gt; 0}}">
+              <div flex layout vertical class="content">
+                <container layout justified horizontal class="summarytext">
+                  <h2><em style="text-decoration: underline;">Detailed Marks Breakdown</em></h2>
+                </container>
+                <template repeat="{{n in detailedMarksIterator}}">
+                  <container layout justified horizontal class="add-padding"><span>Achieving<b> [{{n}}%]</b><span> on remaining weight...</span></span></container>
+                  <container layout justified horizontal style="margin-bottom: 0.5em;" class="add-padding"><span>Your mark would be...<b> [{{detailedMarksDB[n]}}%]</b></span></container>
+                </template>
+                <div layout justified horizontal class="container custombar">
+                  <core-field>
+                    <label><b>Assuming:</b></label>
+                    <div class="input">
+                      <paper-input floatingLabel label="Grade (%)" value="{{customGrade}}" on-change="{{getCustomFinalGrade}}"></paper-input>
+                    </div>
+                    <label><b>Final Mark: [{{customFinalGrade}}%]</b></label>
+                  </core-field>
+                </div>
+                <div layout justified horizontal class="container custombar2">
+                  <core-field>
+                    <label><b>Desired:</b></label>
+                    <div class="input">
+                      <paper-input floatingLabel label="Grade (%)" value="{{desiredGrade}}" on-change="{{getDesiredFinalGrade}}"></paper-input>
+                    </div>
+                    <label><b>You Need: [{{desiredFinalGrade}}%]</b></label>
+                  </core-field>
+                </div>
+              </div>
+            </template>
           </paper-shadow>
         </paper-shadow>
       </core-header-panel>
     </template>
     <script>(function() {
-  var main;
+  var displayError, main, n, obj, x, _i;
 
   main = document.querySelector("#main");
+
+  displayError = document.querySelector("#toasty");
 
   main.total = 0;
 
@@ -76,39 +114,50 @@
 
   main.grades = [
     {
-      grade: "",
-      weight: ""
-    }, {
-      grade: "",
-      weight: ""
-    }, {
-      grade: "",
-      weight: ""
-    }, {
-      grade: "",
-      weight: ""
-    }, {
-      grade: "",
-      weight: ""
+      grade: '',
+      weight: ''
     }
   ];
 
+  main.customFinalGrade = 100;
+
+  main.getCustomFinalGrade = function() {
+    main.customFinalGrade = parseFloat(main.total) + (parseFloat(main.customGrade) * parseFloat(main.missingWeight));
+    return main.customFinalGrade = main.customFinalGrade.toFixed(2);
+  };
+
+  main.desiredFinalGrade = 100;
+
+  main.getDesiredFinalGrade = function() {
+    main.desiredFinalGrade = (parseFloat(main.desiredGrade) - parseFloat(main.total)) / (parseFloat(main.missingWeight));
+    return main.desiredFinalGrade = main.desiredFinalGrade.toFixed(2);
+  };
+
   main.addGrade = function() {
     var obj;
+    main.grades = main.grades;
     obj = {
       grade: '',
       weight: ''
     };
-    return main.grades.push(obj);
+    main.grades.push(obj);
   };
 
+  for (x = _i = 0; _i < 12; x = ++_i) {
+    obj = {
+      grade: '',
+      weight: ''
+    };
+    main.grades.push(obj);
+  }
+
   main.getTotalGrade = function() {
-    var grade, o, sum, sumWeight, weight, _i, _len, _ref;
+    var grade, o, sum, sumWeight, weight, _j, _len, _ref;
     sum = 0;
     sumWeight = 0;
     _ref = main.grades;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      o = _ref[_i];
+    for (_j = 0, _len = _ref.length; _j < _len; _j++) {
+      o = _ref[_j];
       if (o.grade && o.weight) {
         weight = parseFloat(o.weight);
         if (weight > 1) {
@@ -125,7 +174,32 @@
       main.assumedGrade = main.assumedGrade.toFixed(2);
     }
     main.total = sum.toFixed(2);
-    return main.missingWeight = main.missingWeight.toFixed(2);
+    main.missingWeight = main.missingWeight.toFixed(2);
+    main.genDetailedMarkDB();
+    if (main.missingWeight < 0) {
+      return displayError.show();
+    }
+  };
+
+  main.detailedMarksIterator = (function() {
+    var _j, _results;
+    _results = [];
+    for (n = _j = 100; _j >= 10; n = _j += -10) {
+      _results.push(n);
+    }
+    return _results;
+  })();
+
+  main.detailedMarksDB = {};
+
+  main.genDetailedMarkDB = function() {
+    var grade, res, _j, _len, _ref;
+    _ref = main.detailedMarksIterator;
+    for (_j = 0, _len = _ref.length; _j < _len; _j++) {
+      grade = _ref[_j];
+      res = parseFloat(main.total) + (grade * parseFloat(main.missingWeight));
+      main.detailedMarksDB[grade] = res.toFixed(2);
+    }
   };
 
 }).call(this);
