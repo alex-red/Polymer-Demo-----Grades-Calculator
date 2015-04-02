@@ -43,19 +43,19 @@
             <paper-shadow z="1" id="titlebar" class="summary">
               <container horizontal around-justified layout><span><b>Summary</b></span></container>
             </paper-shadow>
-            <container layout justified horizontal class="summarytext">
+            <container layout justified horizontal class="summarytext grade">
               <h2>Current Grade:</h2>
               <h2>{{total}}%</h2>
             </container>
             <template if="{{missingWeight &gt;= 0}}">
-              <container layout justified horizontal class="summaryhelper">
+              <container layout justified horizontal class="summaryhelper grade">
                 <h5><em>Your mark without accounting for missed weight.</em></h5>
               </container>
-              <container layout justified horizontal class="summarytext">
+              <container layout justified horizontal class="summarytext weight">
                 <h2>Missing Weight:</h2>
-                <h2>{{missingWeight}}%</h2>
+                <h2>{{missingWeight * 100}}%</h2>
               </container>
-              <container layout justified horizontal class="summaryhelper">
+              <container layout justified horizontal class="summaryhelper weight">
                 <h5><em>Percentage of missing grades.</em></h5>
               </container>
               <container layout justified horizontal class="summarytext">
@@ -72,10 +72,10 @@
                   <h2><em style="text-decoration: underline;">Detailed Marks Breakdown</em></h2>
                 </container>
                 <template repeat="{{n in detailedMarksIterator}}">
-                  <container layout justified horizontal class="add-padding"><span>Achieving<b> [{{n}}%]</b><span> on remaining weight...</span></span></container>
-                  <container layout justified horizontal style="margin-bottom: 0.5em;" class="add-padding"><span>Your mark would be...<b> [{{detailedMarksDB[n]}}%]</b></span></container>
+                  <container layout justified horizontal class="add-padding"><span>Achieving<b><em> {{n}}%</em></b><span> on remaining</span><b><em> {{missingWeight * 100}}</em></b><span> percent...</span></span></container>
+                  <container layout justified horizontal style="margin-bottom: 0.5em;" class="add-padding"><span>Your mark would be...<b style="color: #01579B "> {{detailedMarksDB[n]}}%</b></span></container>
                 </template>
-                <div layout justified horizontal class="container custombar">
+                <div layout justified horizontal title="Assuming your grade is the following for the rest of the weight." class="container custombar">
                   <core-field>
                     <label><b>Assuming:</b></label>
                     <div class="input">
@@ -84,7 +84,7 @@
                     <label><b>Final Mark: [{{customFinalGrade}}%]</b></label>
                   </core-field>
                 </div>
-                <div layout justified horizontal class="container custombar2">
+                <div layout justified horizontal title="Your desired grade and the grade required for the rest of the weight." class="container custombar2">
                   <core-field>
                     <label><b>Desired:</b></label>
                     <div class="input">

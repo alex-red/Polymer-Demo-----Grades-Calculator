@@ -30,7 +30,7 @@ p {
   margin-right: 4em;
 }
 #stage {
-  height: 100%;
+  max-height: 900px;
   padding: 2em;
   margin: 2em;
   min-width: 600px;
@@ -51,6 +51,12 @@ p {
 #display {
   margin-left: 2em;
   background-color: #fff;
+}
+#display .weight {
+  color: #b71c1c;
+}
+#display .grade {
+  color: #388e3c;
 }
 #titlebar {
   padding-top: 1em;

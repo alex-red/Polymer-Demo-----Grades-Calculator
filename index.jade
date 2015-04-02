@@ -44,16 +44,16 @@ html
             paper-shadow(z=1)#titlebar.summary
               container(horizontal around-justified layout )
                 span: b Summary
-            container(layout justified horizontal).summarytext
+            container(layout justified horizontal).summarytext.grade
               h2 Current Grade:
               h2 {{total}}%
             template(if="{{missingWeight >= 0}}")
-              container(layout justified horizontal).summaryhelper
+              container(layout justified horizontal).summaryhelper.grade
                 h5: em Your mark without accounting for missed weight.
-              container(layout justified horizontal).summarytext
+              container(layout justified horizontal).summarytext.weight
                 h2 Missing Weight:
-                h2 {{missingWeight}}%
-              container(layout justified horizontal).summaryhelper
+                h2 {{missingWeight * 100}}%
+              container(layout justified horizontal).summaryhelper.weight
                 h5: em Percentage of missing grades.
               container(layout justified horizontal).summarytext
                 h2 Assumed Grade:
@@ -68,20 +68,22 @@ html
                 template(repeat="{{n in detailedMarksIterator}}")
                   container(layout justified horizontal).add-padding
                     span Achieving
-                      b  [{{n}}%]
-                      span  on remaining weight...
+                      b: em  {{n}}%
+                      span  on remaining
+                      b: em  {{missingWeight * 100}}
+                      span  percent...
                   container(layout justified horizontal style="margin-bottom: 0.5em;").add-padding
                     span Your mark would be...
-                      b  [{{detailedMarksDB[n]}}%]
+                      b(style="color: #01579B ")  {{detailedMarksDB[n]}}%
 
-                .container(layout justified horizontal).custombar
+                .container(layout justified horizontal title="Assuming your grade is the following for the rest of the weight.").custombar
                   core-field
                     label
                       b Assuming:
                     .input
                       paper-input(floatingLabel label="Grade (%)" value="{{customGrade}}" on-change="{{getCustomFinalGrade}}")
                     label: b Final Mark: [{{customFinalGrade}}%]
-                .container(layout justified horizontal).custombar2
+                .container(layout justified horizontal title="Your desired grade and the grade required for the rest of the weight.").custombar2
                   core-field
                     label
                       b Desired:
